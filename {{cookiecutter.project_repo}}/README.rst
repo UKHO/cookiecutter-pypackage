@@ -4,8 +4,8 @@
 {% for _ in cookiecutter.project_name %}={% endfor %}
 
 {% if is_open_source %}
-.. image:: https://github.com/{{ cookiecutter.github_username }}/{{ cookiecutter.project_slug }}/workflows/Python%20package/badge.svg
-     :target: https://github.com/{{ cookiecutter.github_username }}/{{ cookiecutter.project_slug }}/actions?query=workflow%3A%22Python+package%22
+.. image:: https://github.com/{{ cookiecutter.github_username }}/{{ cookiecutter.project_repo }}/workflows/Python%20package/badge.svg
+     :target: https://github.com/{{ cookiecutter.github_username }}/{{ cookiecutter.project_repo }}/actions?query=workflow%3A%22Python+package%22
 {%- endif %}
 
 {{ cookiecutter.project_short_description }}

@@ -176,3 +176,11 @@ def test_using_pytest(cookies):
         run_inside_dir("python setup.py pytest", str(result.project)) == 0
         # Test the test alias (which invokes pytest)
         run_inside_dir("python setup.py test", str(result.project)) == 0
+
+
+def test_bake_and_run_lints(cookies):
+    with bake_in_temp_dir(cookies) as result:
+        assert result.project.isdir()
+        run_inside_dir("make lint", str(result.project)) == 0
+        print("test_bake_and_run_tests path", str(result.project))
+
