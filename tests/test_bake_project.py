@@ -183,4 +183,3 @@ def test_bake_and_run_lints(cookies):
         assert result.project.isdir()
         run_inside_dir("make lint", str(result.project)) == 0
         print("test_bake_and_run_tests path", str(result.project))
-
