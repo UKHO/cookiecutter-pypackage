@@ -84,7 +84,7 @@ def test_bake_with_defaults(cookies):
 def test_bake_and_run_tests(cookies):
     with bake_in_temp_dir(cookies) as result:
         assert result.project.isdir()
-        run_inside_dir("make test", str(result.project)) == 0
+        assert run_inside_dir("make test", str(result.project)) == 0
         print("test_bake_and_run_tests path", str(result.project))
 
 
@@ -94,14 +94,14 @@ def test_bake_withspecialchars_and_run_tests(cookies):
         cookies, extra_context={"full_name": 'name "quote" name'}
     ) as result:
         assert result.project.isdir()
-        run_inside_dir("make test", str(result.project)) == 0
+        assert run_inside_dir("make test", str(result.project)) == 0
 
 
 def test_bake_with_apostrophe_and_run_tests(cookies):
     """Ensure that a `full_name` with apostrophes does not break setup.py"""
     with bake_in_temp_dir(cookies, extra_context={"full_name": "O'connor"}) as result:
         assert result.project.isdir()
-        run_inside_dir("python setup.py test", str(result.project)) == 0
+        assert run_inside_dir("python setup.py test", str(result.project)) == 0
 
 
 def test_bake_with_gh_actions(cookies):
@@ -173,13 +173,20 @@ def test_using_pytest(cookies):
         lines = test_file_path.readlines()
         assert "import pytest" in "".join(lines)
         # Test the new pytest target
-        run_inside_dir("python setup.py pytest", str(result.project)) == 0
+        assert run_inside_dir("python setup.py pytest", str(result.project)) == 0
         # Test the test alias (which invokes pytest)
-        run_inside_dir("python setup.py test", str(result.project)) == 0
+        assert run_inside_dir("python setup.py test", str(result.project)) == 0
 
 
 def test_bake_and_run_lints(cookies):
     with bake_in_temp_dir(cookies) as result:
         assert result.project.isdir()
-        run_inside_dir("make lint", str(result.project)) == 0
-        print("test_bake_and_run_tests path", str(result.project))
+        assert run_inside_dir("make lint", str(result.project)) == 0
+        print("test_bake_and_run_lints path", str(result.project))
+
+
+def test_bake_and_run_static_analysis(cookies):
+    with bake_in_temp_dir(cookies) as result:
+        assert result.project.isdir()
+        assert run_inside_dir("make static-analysis", str(result.project)) == 0
+        print("test_bake_and_run_static_analysis path", str(result.project))
