@@ -63,9 +63,10 @@ def test_year_compute_in_license_file(cookies):
 def project_info(result):
     """Get toplevel dir, project_slug, and project dir from baked cookies"""
     project_path = str(result.project)
-    project_slug = os.path.split(project_path)[-1]
-    project_dir = os.path.join(project_path, project_slug)
-    return project_path, project_slug, project_dir
+    project_repo = os.path.split(project_path)[-1]
+    project_slug = project_repo.replace("-", "_")
+    project_dir = os.path.join(project_path, project_repo)
+    return project_path, project_repo, project_slug, project_dir
 
 
 def test_bake_with_defaults(cookies):
@@ -116,19 +117,58 @@ def test_bake_with_gh_actions(cookies):
 def test_bake_without_author_file(cookies):
     with bake_in_temp_dir(cookies, extra_context={"create_author_file": "n"}) as result:
         found_toplevel_files = [f.basename for f in result.project.listdir()]
-        assert "AUTHORS.rst" not in found_toplevel_files
-        doc_files = [f.basename for f in result.project.join("docs").listdir()]
-        assert "authors.rst" not in doc_files
-
-        # Assert there are no spaces in the toc tree
-        docs_index_path = result.project.join("docs/index.rst")
-        with open(str(docs_index_path)) as index_file:
-            assert "contributing\n   history" in index_file.read()
+        assert "AUTHORS.md" not in found_toplevel_files
 
         # Check that
         manifest_path = result.project.join("MANIFEST.in")
         with open(str(manifest_path)) as manifest_file:
-            assert "AUTHORS.rst" not in manifest_file.read()
+            assert "AUTHORS.md" not in manifest_file.read()
+
+
+def test_bake_slug_in_readme_output(cookies):
+    with bake_in_temp_dir(cookies) as result:
+        _, repo, _, _ = project_info(result)
+
+        readme_path = result.project.join("README.md")
+        with open(str(readme_path)) as readme_file:
+            assert repo in readme_file.read()
+
+
+def test_bake_badge_in_readme_output_if_open_source(cookies):
+    with bake_in_temp_dir(
+        cookies,
+        extra_context={"github_username": "UKHO", "open_source_license": "MIT license"},
+    ) as result:
+        _, repo, _, _ = project_info(result)
+
+        badge = (
+            f"![Python Package](https://github.com/UKHO/{repo}/"
+            "workflows/Python%20package/badge.svg)"
+        )
+
+        readme_path = result.project.join("README.md")
+        with open(str(readme_path)) as readme_file:
+            assert badge in readme_file.read()
+
+
+def test_bake_badge_not_in_readme_output_if_open_source(cookies):
+    with bake_in_temp_dir(
+        cookies,
+        extra_context={
+            "github_username": "UKHO",
+            "open_source_license": "Not open source",
+        },
+    ) as result:
+        _, repo, _, _ = project_info(result)
+
+        badge = (
+            f"![Python Package](https://github.com/UKHO/{repo}/"
+            "workflows/Python%20package/badge.svg)"
+        )
+
+        readme_path = result.project.join("README.md")
+        with open(str(readme_path)) as readme_file:
+            assert badge not in readme_file.read()
 
 
 def test_make_help(cookies):
@@ -163,7 +203,7 @@ def test_bake_not_open_source(cookies):
         found_toplevel_files = [f.basename for f in result.project.listdir()]
         assert "setup.py" in found_toplevel_files
         assert "LICENSE" not in found_toplevel_files
-        assert "License" not in result.project.join("README.rst").read()
+        assert "License" not in result.project.join("README.md").read()
 
 
 def test_using_pytest(cookies):
@@ -182,11 +222,9 @@ def test_bake_and_run_lints(cookies):
     with bake_in_temp_dir(cookies) as result:
         assert result.project.isdir()
         assert run_inside_dir("make lint", str(result.project)) == 0
-        print("test_bake_and_run_lints path", str(result.project))
 
 
 def test_bake_and_run_static_analysis(cookies):
     with bake_in_temp_dir(cookies) as result:
         assert result.project.isdir()
-        assert run_inside_dir("make static-analysis", str(result.project)) == 0
-        print("test_bake_and_run_static_analysis path", str(result.project))
+        assert run_inside_dir("make sast", str(result.project)) == 0
