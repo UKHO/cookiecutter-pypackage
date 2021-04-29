@@ -1,0 +1,46 @@
+version: 2
+updates:
+- package-ecosystem: pip
+  directory: "/"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: black
+    versions:
+    - 20.8b1
+    - 21.4b0
+    - 21.4b1
+  - dependency-name: pip-tools
+    versions:
+    - 5.5.0
+    - 6.0.0
+    - 6.0.1
+  - dependency-name: twine
+    versions:
+    - 3.3.0
+    - 3.4.0
+  - dependency-name: watchdog
+    versions:
+    - 1.0.2
+    - 2.0.0
+    - 2.0.1
+    - 2.0.2
+  - dependency-name: pip
+    versions:
+    - "21.0"
+    - 21.0.1
+  - dependency-name: coverage
+    versions:
+    - "5.4"
+  - dependency-name: pytest
+    versions:
+    - 6.2.2
+  - dependency-name: isort
+    versions:
+    - 5.7.0
+- package-ecosystem: pip
+  directory: "/{{cookiecutter.project_repo}}"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
